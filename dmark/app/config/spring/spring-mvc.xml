@@ -1,0 +1,49 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+
+	<!-- 启用spring mvc 注解 -->
+	<mvc:annotation-driven validator="validator"></mvc:annotation-driven>
+	<!-- 静态请求 交给默认的handler处理(才能读取js等静态内容) -->
+	<mvc:default-servlet-handler />
+	<!-- 配置视图解析器前缀 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+	</bean>
+	<!-- 设置使用注解的类所在的包 -->
+	<context:component-scan base-package="com.mark.controller"></context:component-scan>
+	<!-- 配置校验器 -->
+	<bean id="validator"
+		class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+		<property name="providerClass" value="org.hibernate.validator.HibernateValidator" />
+		<!-- 如果不加默认到 使用classpath下的 ValidationMessages.properties -->
+		<property name="validationMessageSource" ref="messageSource" />
+	</bean>
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:messages/validatorMessage</value>
+			</list>
+		</property>
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="cacheSeconds" value="120" />
+	</bean>
+	<!-- 配置拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<!-- 两个**表示全部地址，不止是/ -->
+			<mvc:mapping path="/**" />
+			<bean class="com.mark.interceptor.demoInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<!-- 文件上传 -->
+	<!-- 全局异常处理 -->
+	<bean class="com.except.CustomExceptionResolver"></bean>
+</beans>
